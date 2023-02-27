@@ -69,8 +69,9 @@ def index():
 ####################
 @app.route('/player/<string:playeruuid>')
 def view_player(playeruuid):
-    player = Player.query.get_or_404(playeruuid);
-    return render_template('player.html', player=player);
+    player = Player.query.get(playeruuid)
+    games = Game.query.filter((Game.game_whiteplayer==playeruuid) | (Game.game_blackplayer==playeruuid)).all()
+    return render_template('player.html', player=player, games=games)
 
 ################
 # Add SGF page #
