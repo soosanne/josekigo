@@ -102,21 +102,35 @@ def time_ago(dt):
 def index():
     return render_template("main_page.html", games=Game.query.all(), time_ago=time_ago)  # db.session.execute(db.select(Game)).all().order_by(Game.game_datetime))
 
+##############
+# About page #
+##############
+@app.route("/about", methods=["GET"])
+def about():
+    return render_template("about.html")
+
 #################
 # View Game SGF #
 #################
-@app.route('/game/<int:gameid>')
+@app.route('/game/<int:gameid>', methods=["GET"])
 def view_game(gameid):
     return render_template('game_sgf.html', game=Game.query.get(gameid))
 
 ####################
 # View player page #
 ####################
-@app.route('/player/<string:playeruuid>')
+@app.route('/player/<string:playeruuid>', methods=["GET"])
 def view_player(playeruuid):
     games = Game.query.filter((Game.game_whiteplayer==playeruuid) | (Game.game_blackplayer==playeruuid)).all()
     return render_template('player.html', player=Player.query.get(playeruuid), games=games, time_ago=time_ago)
-
+    
+#########################
+# View all players page #
+#########################
+@app.route('/players', methods=["GET"])
+def all_players():
+    return render_template('all_players.html', players=Player.query.all())
+    
 ################
 # Add SGF page #
 ################
@@ -130,14 +144,15 @@ def addsgf():
     if gameid is None:
         gameid = 0
 
-    # If the gameid is 0 then update the last game without an SGF
-    game = Game.query.get(last_inserted_game_id)
-    game.game_sgf = sgfdata
-    db.session.add(game)
-    db.session.commit()
-
-    # For now just return the sgfdata
-    return sgfdata
+    # For now always add the SGF to the last inserted game - if we have one
+    if last_inserted_game_id != -1:
+        game = Game.query.get(last_inserted_game_id)
+        game.game_sgf = sgfdata
+        db.session.add(game)
+        db.session.commit()
+        return f"game/{game.game_id}"
+    else:
+        return "Unable to complete."
 
 ########################
 # Add game record page #

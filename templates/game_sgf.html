@@ -1,7 +1,45 @@
 {% extends 'site_template.html' %}
 
-{% block content %}
-    <h1 class="title">{% block title %} {{ game.game_datetime }} - {{ game.game_blackplayerdata.player_name }} vs {{ game.game_whiteplayerdata.player_name }} {% endblock %}</h1>
-    <pre>{{ game.game_sgf }}</pre>
+{% block headers %}
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/besogo.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/board-flat.css')}}">
+    <script src="{{url_for('static', filename='js/besogo.js')}}"></script>
+    <script src="{{url_for('static', filename='js/editor.js')}}"></script>
+    <script src="{{url_for('static', filename='js/gameRoot.js')}}"></script>
+    <script src="{{url_for('static', filename='js/svgUtil.js')}}"></script>
+    <script src="{{url_for('static', filename='js/parseSgf.js')}}"></script>
+    <script src="{{url_for('static', filename='js/loadSgf.js')}}"></script>
+    <script src="{{url_for('static', filename='js/saveSgf.js')}}"></script>
+    <script src="{{url_for('static', filename='js/boardDisplay.js')}}"></script>
+    <script src="{{url_for('static', filename='js/coord.js')}}"></script>
+    <script src="{{url_for('static', filename='js/toolPanel.js')}}"></script>
+    <script src="{{url_for('static', filename='js/filePanel.js')}}"></script>
+    <script src="{{url_for('static', filename='js/controlPanel.js')}}"></script>
+    <script src="{{url_for('static', filename='js/namesPanel.js')}}"></script>
+    <script src="{{url_for('static', filename='js/commentPanel.js')}}"></script>
+    <script src="{{url_for('static', filename='js/treePanel.js')}}"></script>
+{% endblock %}
 
+{% block content %}
+    <h1 class="display-6">{% block title %} &#9675; {{ game.game_whiteplayerdata.player_name }} vs  &#11044; {{ game.game_blackplayerdata.player_name }} {% endblock %}</h1>
+    <div>{{ game.game_datetime }}</div>
+    <div>{% if game_winner == game_blackplayer %}Black{% else %}White{% endif %} wins by {{ game.game_score }}</div>
+
+    <div class="besogo-viewer" style="height: 625px; width: 552px" resize="fixed" panels="control" variants="1" path="1000">
+        {{ game.game_sgf }}
+    </div>
+
+    <div></div>
+
+    <pre><code>
+        {{ game.game_sgf }}
+    </code></pre>
+
+
+
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    besogo.autoInit()
+}, false);
+</script>
 {% endblock %}
