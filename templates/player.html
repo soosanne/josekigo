@@ -18,23 +18,32 @@
         <div class="col">
             Game setup
         </div>
+        <div class="col">
+        </div>
     </div>
     {% for game in games %}
         <div class="row">
             <div class="col-2">
-                {{ game.game_datetime }}
+                {{ time_ago(game.game_datetime) }}
+            </div>
+            <div class="col" class="name">
+                <a href="{{ url_for('view_player', playeruuid=game.game_whiteplayerdata.player_uuid)}}">
+                    {{ game.game_whiteplayerdata.player_name }}
+                </a>
             </div>
             <div class="col">
-                {{ game.game_whiteplayerdata.player_name }}
-            </div>
-            <div class="col">
-                {{ game.game_blackplayerdata.player_name }}
+                <a href="{{ url_for('view_player', playeruuid=game.game_blackplayerdata.player_uuid)}}">
+                    {{ game.game_blackplayerdata.player_name }}
+                </a>
             </div>
             <div class="col">
                 {{ game.game_winnerdata.player_name }} by {{ game.game_score }}
             </div>
             <div class="col">
                 {{ game.game_boardsize }}x{{ game.game_boardsize }}, {{ game.game_handicap }} handicap, {{ game.game_komi }} komi
+            </div>
+            <div class="col">
+                {% if game.game_sgf != None %} <a href="{{ url_for('view_game', gameid=game.game_id) }}">view SGF</a> {% endif %}
             </div>
         </div>
     {% endfor %}

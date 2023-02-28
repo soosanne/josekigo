@@ -1,0 +1,7 @@
+{% extends 'site_template.html' %}
+
+{% block content %}
+    <h1 class="title">{% block title %} {{ game.game_datetime }} - {{ game.game_blackplayerdata.player_name }} vs {{ game.game_whiteplayerdata.player_name }} {% endblock %}</h1>
+    <pre>{{ game.game_sgf }}</pre>
+
+{% endblock %}

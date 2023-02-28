@@ -56,22 +56,66 @@ class Game(db.Model):
     game_winnerdata = db.relationship('Player', foreign_keys='Game.game_winner')
 
     game_sgf = db.Column(db.Text, nullable=True)
+    
+#############
+# Functions #
+#############
+def time_ago(dt):
+    tn = datetime.now()
+    difference = tn - dt
+    if difference.days > 0:
+        if difference.days > 730:
+            return(f"{int(difference.days / 365)} years ago")
+        elif difference.days > 365:
+            return("1 year ago")
+        elif difference.days > 60:
+            return(f"{int(difference.days / 30)} months ago")
+        elif difference.days > 30:
+            return("1 month ago")
+        elif difference.days > 14:
+            return(f"{int(difference.days / 7)} weeks ago")
+        elif difference.days > 7:
+            return("1 week ago")
+        elif difference.days > 1:
+            return(f"{difference.days} days ago")
+        else:
+            return("1 day ago")
+    elif difference.seconds > 0:
+        if difference.seconds > 7200:
+            return(f"{int(difference.seconds / 3600)} hours ago")
+        elif difference.seconds > 3600:
+            return("1 hour ago")
+        elif difference.seconds > 120:
+            return(f"{int(difference.seconds / 60)} minutes ago")
+        elif difference.seconds > 60:
+            return("1 minute ago")
+        else:
+            return(f"{difference.seconds} seconds ago")
+    else:
+        return("just now")
+            
 
 ##########################
 # Recent games list page #
 ##########################
 @app.route("/", methods=["GET"])
 def index():
-    return render_template("main_page.html", games=Game.query.all())  # db.session.execute(db.select(Game)).all().order_by(Game.game_datetime))
+    return render_template("main_page.html", games=Game.query.all(), time_ago=time_ago)  # db.session.execute(db.select(Game)).all().order_by(Game.game_datetime))
+
+#################
+# View Game SGF #
+#################
+@app.route('/game/<int:gameid>')
+def view_game(gameid):
+    return render_template('game_sgf.html', game=Game.query.get(gameid))
 
 ####################
 # View player page #
 ####################
 @app.route('/player/<string:playeruuid>')
 def view_player(playeruuid):
-    player = Player.query.get(playeruuid)
     games = Game.query.filter((Game.game_whiteplayer==playeruuid) | (Game.game_blackplayer==playeruuid)).all()
-    return render_template('player.html', player=player, games=games)
+    return render_template('player.html', player=Player.query.get(playeruuid), games=games, time_ago=time_ago)
 
 ################
 # Add SGF page #
@@ -87,6 +131,10 @@ def addsgf():
         gameid = 0
 
     # If the gameid is 0 then update the last game without an SGF
+    game = Game.query.get(last_inserted_game_id)
+    game.game_sgf = sgfdata
+    db.session.add(game)
+    db.session.commit()
 
     # For now just return the sgfdata
     return sgfdata
