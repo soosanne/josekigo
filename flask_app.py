@@ -1,9 +1,11 @@
 from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import re
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
+items_per_page = 20
 
 #############################
 # Database connection stuff #
@@ -56,7 +58,7 @@ class Game(db.Model):
     game_winnerdata = db.relationship('Player', foreign_keys='Game.game_winner')
 
     game_sgf = db.Column(db.Text, nullable=True)
-    
+
 #############
 # Functions #
 #############
@@ -93,14 +95,17 @@ def time_ago(dt):
             return(f"{difference.seconds} seconds ago")
     else:
         return("just now")
-            
+
 
 ##########################
 # Recent games list page #
 ##########################
 @app.route("/", methods=["GET"])
 def index():
-    return render_template("main_page.html", games=Game.query.all(), time_ago=time_ago)  # db.session.execute(db.select(Game)).all().order_by(Game.game_datetime))
+    global items_per_page
+    page = request.args.get('page', 1, type=int)
+    games=Game.query.order_by(Game.game_datetime.desc()).paginate(page, per_page=items_per_page)
+    return render_template("main_page.html", games=games, time_ago=time_ago)  # db.session.execute(db.select(Game)).all().order_by(Game.game_datetime))
 
 ##############
 # About page #
@@ -121,21 +126,27 @@ def view_game(gameid):
 ####################
 @app.route('/player/<string:playeruuid>', methods=["GET"])
 def view_player(playeruuid):
-    games = Game.query.filter((Game.game_whiteplayer==playeruuid) | (Game.game_blackplayer==playeruuid)).all()
+    global items_per_page
+    page = request.args.get('page', 1, type=int)
+    games=Game.query.filter((Game.game_whiteplayer==playeruuid) | (Game.game_blackplayer==playeruuid)).order_by(Game.game_datetime.desc()).paginate(page, per_page=items_per_page)
     return render_template('player.html', player=Player.query.get(playeruuid), games=games, time_ago=time_ago)
-    
+
 #########################
 # View all players page #
 #########################
 @app.route('/players', methods=["GET"])
 def all_players():
     return render_template('all_players.html', players=Player.query.all())
-    
+
 ################
 # Add SGF page #
 ################
+# This function is deprocated. From now on I want only to upload SGFs and get all the data I need from there instead of the 2-stage game upload
+# I've been using before now. The board has been modified to include the player UUIDs in WT and BT (white and black team) SGF entries.
 @app.route("/addsgf", methods=["POST"])
 def addsgf():
+    global last_inserted_game_id;
+
     # Get the sgfdata - this is what we will insert into the database
     sgfdata = request.data
 
@@ -150,9 +161,87 @@ def addsgf():
         game.game_sgf = sgfdata
         db.session.add(game)
         db.session.commit()
+        last_inserted_game_id = -1
         return f"game/{game.game_id}"
     else:
         return "Unable to complete."
+
+###################
+# Upload SGF page #
+###################
+
+def findmatch(needle, haystack):
+    match = re.search(needle + r'\[(.*?)\]', haystack)
+
+    if match:
+        return match.group(1)
+    else:
+        return ""
+
+@app.route("/uploadsgf", methods=["POST"])
+def uploadsgf():
+    global last_inserted_game_id;
+
+    # Get the sgfdata - this is what we will insert into the database
+    sgfdata = request.data.decode("utf-8")
+
+    # Get all the important game information from the SGF
+    whiteplayername = findmatch("PW", sgfdata)
+    blackplayername = findmatch("PB", sgfdata)
+    whiteplayeruuid = findmatch("WT", sgfdata)
+    blackplayeruuid = findmatch("BT", sgfdata)
+    score = findmatch("RE", sgfdata)
+    if score[0] == "W":
+        winneruuid = whiteplayeruuid
+    else:
+        winneruuid = blackplayeruuid
+    boardsize = int(findmatch("SZ", sgfdata))
+    handicap = findmatch("HA", sgfdata)
+    if handicap == "":
+        handicap = 0
+    else:
+        handicap = int(handicap)
+    komi = float(findmatch("KM", sgfdata))
+
+    # Add 1/2 if komi is given as a round number
+    if float(int(komi)) == komi:
+        komi = komi + 0.5
+
+    # If player doesn't already exist then create an entry for them in the players table
+    # TODO: If player already exists check if their name has changed and if so then update it
+    whiteexists = db.session.query(Player.player_uuid).filter_by(player_uuid=whiteplayeruuid).scalar() is not None
+    if not whiteexists:
+        whiteplayer = Player(player_name=whiteplayername, player_uuid=whiteplayeruuid)
+        db.session.add(whiteplayer)
+        db.session.commit()
+
+    # Often it is the case that one player controls both sides - mostly for teaching games
+    if blackplayeruuid != whiteplayeruuid:
+        # TODO: If player already exists check if their name has changed and if so then update it
+        blackexists = db.session.query(Player.player_uuid).filter_by(player_uuid=blackplayeruuid).scalar() is not None
+        if not blackexists:
+            blackplayer = Player(player_name=blackplayername, player_uuid=blackplayeruuid)
+            db.session.add(blackplayer)
+            db.session.commit()
+
+    # Create game object
+    game = Game(game_whiteplayer = whiteplayeruuid,
+                game_blackplayer = blackplayeruuid,
+                game_boardsize = boardsize,
+                game_handicap = handicap,
+                game_komi = komi,
+                game_winner = winneruuid,
+                game_score = score,
+                game_sgf = sgfdata)
+
+    # Add game to DB
+    db.session.add(game)
+    db.session.commit()
+
+    # We don't use this any more when we switch to SGF only uploading
+    last_inserted_game_id = -1;
+
+    return f"game/{game.game_id}"
 
 ########################
 # Add game record page #

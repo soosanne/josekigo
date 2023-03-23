@@ -21,19 +21,26 @@
 {% endblock %}
 
 {% block content %}
-    <h1 class="display-6">{% block title %} &#9675; {{ game.game_whiteplayerdata.player_name }} vs  &#11044; {{ game.game_blackplayerdata.player_name }} {% endblock %}</h1>
-    <div>{{ game.game_datetime }}</div>
-    <div>{% if game_winner == game_blackplayer %}Black{% else %}White{% endif %} wins by {{ game.game_score }}</div>
+    <h1 class="display-5">{% block title %} &#9675; {{ game.game_whiteplayerdata.player_name }} vs {{ game.game_blackplayerdata.player_name }} &#11044; {% endblock %}</h1>
+    <div class="d-flex justify-content-between align-items-start" style="width:600px;">
+        <span class="badge bg-secondary rounded-pill mb-1">{{ game.game_datetime }}</span>
+        <span class="badge bg-secondary rounded-pill mb-1">{{ game_winner }} {{ game.game_winnerdata.player_name }} wins by {{ game.game_score }}</span>
+    </div>
 
-    <div class="besogo-viewer" style="height: 625px; width: 552px" resize="fixed" panels="control" variants="1" path="1000">
+    <div class="besogo-viewer" maxwidth="600" resize="auto" orient="portrait" portratio="110%" panels="control" variants="1" path="1000" coord="western">
         {{ game.game_sgf }}
     </div>
 
     <div></div>
 
-    <pre><code>
-        {{ game.game_sgf }}
-    </code></pre>
+    <a class="btn btn-secondary mt-3 mb-3" data-bs-toggle="collapse" href="#sgfcode" role="button" aria-expanded="false" aria-controls="sgfcode">
+        Show SGF code
+    </a>
+    <div class="collapse" id="sgfcode">
+        <div class="card card-body mb-10" style="max-width: 800px;"><pre><code>
+            {{ game.game_sgf }}
+        </code></pre></div>
+    </div>
 
 
 
@@ -41,5 +48,30 @@
 document.addEventListener('DOMContentLoaded', function() {
     besogo.autoInit()
 }, false);
+
+var sgfcodeCollapse = document.getElementById('sgfcode')
+function copyTextToClipboard(text) {
+  if (!navigator.clipboard) {
+    fallbackCopyTextToClipboard(text);
+    return;
+  }
+  navigator.clipboard.writeText(text).then(function() {
+    console.log('Async: Copying to clipboard was successful!');
+  }, function(err) {
+    console.error('Async: Could not copy text: ', err);
+  });
+}
+
+function SelectText() {
+    var text = document.getElementById("sgfcode");
+    var selection = window.getSelection();
+    var range = document.createRange();
+    range.selectNodeContents(text);
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    copyTextToClipboard(selection.text);
+}
+
 </script>
 {% endblock %}

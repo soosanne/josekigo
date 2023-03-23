@@ -1,14 +1,12 @@
 {% extends 'site_template.html' %}
 
 {% block content %}
-    <h1 class="display-6">{% block title %} All Players {% endblock %}</h1>
-    <ul class="list-unstyled">
+    <h1 class="display-5">{% block title %} All Players {% endblock %}</h1>
+    <div class="list-group">
         {% for player in players %}
-        <li>
-            <a href="{{ url_for('view_player', playeruuid=player.player_uuid)}}">
-                {{ player.player_name }}
-            </a>
-        </li>
+        <a href="{{ url_for('view_player', playeruuid=player.player_uuid)}}" class="list-group-item list-group-item-action">
+            {{ player.player_name }}
+        </a>
         {% endfor %}
-    </ul>
+    </div>
 {% endblock %}

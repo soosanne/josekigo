@@ -1,7 +1,9 @@
 {% extends 'site_template.html' %}
 
 {% block content %}
-    <h1 class="display-6">{% block title %} About {% endblock %}</h1>
+    <h1 class="display-5">{% block title %} About {% endblock %}</h1>
+
+    <img class="img-fluid" alt="A photo of Joseki Go Center" src="{{ url_for("static", filename="img/Joseki Go Center.jpg") }}">
 
     <p>
     Joseki Go Center is a sim and community of Go players in Second Life.
