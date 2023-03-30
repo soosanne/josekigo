@@ -23,6 +23,11 @@ db = SQLAlchemy(app);
 # SGF create a game record - since it has all the data I need in it - players, handicap,
 # komi etc.
 # But for now I'll just keep a global value that contains the ID of the last game added.
+#
+# 30/3/2023 - this is deprocated now that the uploadsgf page has been added. In the past
+# we had a 2-stage upload where a game record was created and then in a second call the
+# SGF was uploaded. That was always an interim solution. This will be removed soon along
+# with the addsgf page and the addgame page. Going forward we will ONLY use uploadsgf
 last_inserted_game_id = -1;
 
 ################################
@@ -57,6 +62,8 @@ class Game(db.Model):
 #############
 # Functions #
 #############
+
+# Used on games lists pages to show how old a game is
 def time_ago(dt):
     tn = datetime.now()
     difference = tn - dt
@@ -90,6 +97,15 @@ def time_ago(dt):
             return(f"{difference.seconds} seconds ago")
     else:
         return("just now")
+
+# Used by the uploadsgf page to find stuff in an SGF file
+def findmatch(needle, haystack):
+    match = re.search(needle + r'\[(.*?)\]', haystack)
+
+    if match:
+        return match.group(1)
+    else:
+        return ""
 
 
 ##########################
@@ -142,6 +158,7 @@ def all_players():
 ################
 # This function is deprocated. From now on I want only to upload SGFs and get all the data I need from there instead of the 2-stage game upload
 # I've been using before now. The board has been modified to include the player UUIDs in WT and BT (white and black team) SGF entries.
+# This will be removed soon.
 @app.route("/addsgf", methods=["POST"])
 def addsgf():
     global last_inserted_game_id;
@@ -168,14 +185,6 @@ def addsgf():
 ###################
 # Upload SGF page #
 ###################
-
-def findmatch(needle, haystack):
-    match = re.search(needle + r'\[(.*?)\]', haystack)
-
-    if match:
-        return match.group(1)
-    else:
-        return ""
 
 @app.route("/uploadsgf", methods=["POST"])
 def uploadsgf():
@@ -245,6 +254,8 @@ def uploadsgf():
 ########################
 # Add game record page #
 ########################
+# This page is deprocated. It was part of the 2-step game upload process that has been replaced by the uploadsgf page.
+# This will be removed soon.
 @app.route("/addgame", methods=["GET", "POST"])
 def addgame():
     global last_inserted_game_id;
