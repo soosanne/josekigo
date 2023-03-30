@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import re
+import database_connection
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
@@ -10,13 +11,7 @@ items_per_page = 20
 #############################
 # Database connection stuff #
 #############################
-SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
-    username="Soosanne",
-    password="soos_mysql",
-    hostname="Soosanne.mysql.pythonanywhere-services.com",
-    databasename="Soosanne$gogames",
-)
-app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
+app.config["SQLALCHEMY_DATABASE_URI"] = database_connection.SQLALCHEMY_DATABASE_URI
 app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
