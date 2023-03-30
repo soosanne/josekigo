@@ -104,8 +104,12 @@ def time_ago(dt):
 def index():
     global items_per_page
     page = request.args.get('page', 1, type=int)
-    games=Game.query.order_by(Game.game_datetime.desc()).paginate(page, per_page=items_per_page)
-    return render_template("main_page.html", games=games, time_ago=time_ago)  # db.session.execute(db.select(Game)).all().order_by(Game.game_datetime))
+    boardsize = request.args.get('boardsize', -1, type=int)
+    if boardsize == -1:
+        games=Game.query.order_by(Game.game_datetime.desc()).paginate(page, per_page=items_per_page)
+    else:
+        games=Game.query.filter_by(game_boardsize=boardsize).order_by(Game.game_datetime.desc()).paginate(page, per_page=items_per_page)
+    return render_template("main_page.html", games=games, time_ago=time_ago, boardsize=boardsize)
 
 ##############
 # About page #

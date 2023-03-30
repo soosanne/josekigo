@@ -1,7 +1,15 @@
 {% extends 'site_template.html' %}
 
 {% block content %}
-    <h1 class="display-5">{% block title %} Recent Games {% endblock %}</h1>
+    <h1 class="display-5">{% block title %} Recent Games {% endblock %}
+    <span style="align:right; margin-left:100px;">
+        <a class="btn btn-sm {% if boardsize == 19 %}btn-primary{% else %}btn-outline-primary{% endif %}" href="{{ url_for('index', boardsize=19) }}">19x19</a>
+        <a class="btn btn-sm {% if boardsize == 13 %}btn-primary{% else %}btn-outline-primary{% endif %}" href="{{ url_for('index', boardsize=13) }}">13x13</a>
+        <a class="btn btn-sm {% if boardsize == 9 %}btn-primary{% else %}btn-outline-primary{% endif %}" href="{{ url_for('index', boardsize=9) }}">9x9</a>
+        <a class="btn btn-sm {% if boardsize == -1 %}btn-primary{% else %}btn-outline-primary{% endif %}" href="{{ url_for('index') }}">all</a>
+    </span>
+    </h1>
+
     <table class="table">
         <thead>
             <tr>
