@@ -16,19 +16,6 @@ app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app);
-# Keep the last inserted game_id. This is not a long term solution to this problem.
-# I want to be able to add an SGF to a game record. I could search for the last inserted
-# game. Or I could write a proper loop for sending the game_id back to LSL and have it
-# send it back to me when it uploads the SGF. Or I could just have the receipt of an
-# SGF create a game record - since it has all the data I need in it - players, handicap,
-# komi etc.
-# But for now I'll just keep a global value that contains the ID of the last game added.
-#
-# 30/3/2023 - this is deprocated now that the uploadsgf page has been added. In the past
-# we had a 2-stage upload where a game record was created and then in a second call the
-# SGF was uploaded. That was always an interim solution. This will be removed soon along
-# with the addsgf page and the addgame page. Going forward we will ONLY use uploadsgf
-last_inserted_game_id = -1;
 
 ################################
 # Define database table models #
@@ -153,35 +140,6 @@ def view_player(playeruuid):
 def all_players():
     return render_template('all_players.html', players=Player.query.all())
 
-################
-# Add SGF page #
-################
-# This function is deprocated. From now on I want only to upload SGFs and get all the data I need from there instead of the 2-stage game upload
-# I've been using before now. The board has been modified to include the player UUIDs in WT and BT (white and black team) SGF entries.
-# This will be removed soon.
-@app.route("/addsgf", methods=["POST"])
-def addsgf():
-    global last_inserted_game_id;
-
-    # Get the sgfdata - this is what we will insert into the database
-    sgfdata = request.data
-
-    # Get the gameid if there is one
-    gameid = request.args.get("gameid")
-    if gameid is None:
-        gameid = 0
-
-    # For now always add the SGF to the last inserted game - if we have one
-    if last_inserted_game_id != -1:
-        game = Game.query.get(last_inserted_game_id)
-        game.game_sgf = sgfdata
-        db.session.add(game)
-        db.session.commit()
-        last_inserted_game_id = -1
-        return f"game/{game.game_id}"
-    else:
-        return "Unable to complete."
-
 ###################
 # Upload SGF page #
 ###################
@@ -250,68 +208,3 @@ def uploadsgf():
     last_inserted_game_id = -1;
 
     return f"game/{game.game_id}"
-
-########################
-# Add game record page #
-########################
-# This page is deprocated. It was part of the 2-step game upload process that has been replaced by the uploadsgf page.
-# This will be removed soon.
-@app.route("/addgame", methods=["GET", "POST"])
-def addgame():
-    global last_inserted_game_id;
-
-    # Check inputs - returns 400 bad request if arg is missing
-    whiteplayername = request.values["whiteplayername"]
-    blackplayername = request.values["blackplayername"]
-    whiteplayeruuid = request.values["whiteplayeruuid"]
-    blackplayeruuid = request.values["blackplayeruuid"]
-    winneruuid = request.values["winneruuid"]
-    boardsize = int(request.values["boardsize"])
-    handicap = int(request.values["handicap"])
-    komi = float(request.values["komi"])
-    score = request.values["score"]
-
-    # Add 1/2 if komi is given as a round number
-    if float(int(komi)) == komi:
-        komi = komi + 0.5
-
-    # Check winner is one of the players
-    if(winneruuid != whiteplayeruuid and winneruuid != blackplayeruuid):
-        return "Malformed game data: Winner is not one of the players"
-
-    # TODO: If player already exists check if their name has changed and if so then update it
-
-    # If player doesn't already exist then create an entry for them in the players table
-    # TODO: If player already exists check if their name has changed and if so then update it
-    whiteexists = db.session.query(Player.player_uuid).filter_by(player_uuid=whiteplayeruuid).scalar() is not None
-    if not whiteexists:
-        whiteplayer = Player(player_name=whiteplayername, player_uuid=whiteplayeruuid)
-        db.session.add(whiteplayer)
-        db.session.commit()
-
-    # Often it is the case that one player controls both sides - mostly for teaching games
-    # TODO: If player already exists check if their name has changed and if so then update it
-    if blackplayeruuid != whiteplayeruuid:
-        blackexists = db.session.query(Player.player_uuid).filter_by(player_uuid=blackplayeruuid).scalar() is not None
-        if not blackexists:
-            blackplayer = Player(player_name=blackplayername, player_uuid=blackplayeruuid)
-            db.session.add(blackplayer)
-            db.session.commit()
-
-    # Create game object
-    game = Game(game_whiteplayer = whiteplayeruuid,
-                game_blackplayer = blackplayeruuid,
-                game_boardsize = boardsize,
-                game_handicap = handicap,
-                game_komi = komi,
-                game_winner = winneruuid,
-                game_score = score)
-
-    # Add game to DB
-    db.session.add(game)
-    db.session.commit()
-
-    # Save the last inserted game_id just in case an SGF arrives for it
-    last_inserted_game_id = game.game_id
-
-    return "Game added"         # Or redirect to / with redirect(url_for('index'))
