@@ -1,0 +1,12 @@
+{% extends 'site_template.html' %}
+
+{% block content %}
+    <h1 class="display-5">{% block title %} Tournaments {% endblock %}</h1>
+    <div class="list-group">
+        {% for tournament in tournaments %}
+        <a href="{{ url_for('view_tournament', tournament_id=tournament.tournament_id)}}" class="list-group-item list-group-item-action">
+            {{ tournament.tournament_name }}
+        </a>
+        {% endfor %}
+    </div>
+{% endblock %}

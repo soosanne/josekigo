@@ -12,24 +12,37 @@
 
     <body class="mb-2 bg-light text-dark">
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+          <div class="container-fluid">
             <a class="navbar-brand" style="margin-left:10px" href="#">Joseki Club Go Games</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav mr-auto">
+              <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('index') }}" >Games</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('all_players') }}">Players</a>
                     </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Tournaments
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('all_tournaments') }}">All tournaments</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('view_tournament', tournament_id=1) }}">February 2023</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('view_tournament', tournament_id=2) }}">March 2023</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('view_tournament', tournament_id=3) }}">May 2023</a></li>
+                        </ul>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('about') }}">About</a>
                     </li>
-                </ul>
+              </ul>
             </div>
+          </div>
         </nav>
 
         <div class="container">

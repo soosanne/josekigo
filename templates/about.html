@@ -13,13 +13,85 @@
     Goban originally created by Dawn - it's a work of art! - and added some code that sends the result of each game together with
     the SGF record of the game to this website.
     </p>
+
     <p>
-    This is not intended to be any kind of ranking system or competition. This is simply a list of games played together with
-    their SGF files. The boards at Joseki Go Club will have this feature and if you want a copy of one of our boards for your
-    own venue Dawn has been very kindly making them available to Go players for free. You can have one with or without the game
-    reporting feature. Just IM someone from Joseki and we'll hook you up.
+    The main Games page on this site is simply a list of games played together with their SGF files. It isn't meant to be any
+    kind of competition or ranking system.
     </p>
+
+    <h2>Want to learn Go or improve your skills?</h2>
+
     <p>
-    <a href="secondlife:///app/agent/ac657fa6-d44b-4eaf-bf0d-e10c1a3b04c7/inspect">Soosanne</a>
+    We'd be delighted to get you started with how to play. Or if you're already a capable player we have players of
+    all levels including dan level. We can find you a suitable oppoent to spar with. While we don't have official lessons
+    there are several players who enjoy teaching the game. Contact
+    <a href="secondlife:///app/agent/46243f27-39d8-4d2c-beb6-e1488005f93a/inspect">Colonel Spaatz</a> or
+    <a href="secondlife:///app/agent/ac657fa6-d44b-4eaf-bf0d-e10c1a3b04c7/inspect">Soosanne</a> and we'll do our best for you.
+    </p>
+
+    <p>
+    For a great primer on how to play take a look at <a href="https://online-go.com/learn-to-play-go">Online-go.com's Learning Pages</a>.
+    </p>
+
+    <h2>Tournaments</h2>
+
+    <p>
+    In February 2023 we held our first tournament and we now run them every few months. Players compete over 5 rounds.
+    Each round they have 1 match against an opponent selected by a MacMahon tournament system. Players usually draw an
+    opponent around the same ability as themselves but where there is a disparity handicaps are given. Players have 3
+    days to arrange a match with their opponents and report the result. Games played on the tournament boards at the
+    <a href="http://maps.secondlife.com/secondlife/Island%20Treasure/168/96/2598">Joseki Center</a>
+    will automatically be uploaded to the tournament page here on the website. Full details of the tournament are available on
+    the blackboards at the Center or by contacting <a href="secondlife:///app/agent/46243f27-39d8-4d2c-beb6-e1488005f93a/inspect">Colonel Spaatz</a>
+    or <a href="secondlife:///app/agent//d31c6a8f-353d-4de4-bffb-04b1bf9efe97/inspect">Phillip1882</a> in game.
+    </p>
+
+    <h2>Dawn's Goban</h2>
+
+    <p>
+    The boards at Joseki Go Club all have the game upload feature and if you want a copy of one of
+    our boards for your own venue you can have one for free. Look for the board on the wall that says,
+    "<Strong>Click me for a free Go board</Strong>". It's a free vendor that will give you the latest version of our goban.
+    Dawn originally created this board and has very kindly made them open source and free to all. I am doing the same. The board
+    has a config file that lets you turn off game uploading if you wish. Edit the contents of the board object and open
+    the "goban settings" file. Here's a sample explaining what the options are:
+    </p>
+
+    <pre>
+# Goban settings
+# Lines starting with # will be ignored. Lines without a : will be ignored
+# Lines are in the format Setting:Value. Capitalization matters. Get it right or it won't work.
+
+# Default rules
+# AGA:Territory, AGA:Area, Chinese, Japanese, New_Zealand
+Rules:Japanese
+
+# Default board size
+# 5, 7, 9, 11, 13, 15, 17, 19
+Size:19
+
+# Default board mode
+# Game, Teaching
+Mode:Game
+
+# Turn on or off website uploading
+# On, Off
+Upload:On
+
+# The address where SGFs will be uploaded
+Upload URL:https://soosanne.pythonanywhere.com/uploadsgf
+    </pre>
+
+    <h2>Get in touch</h2>
+
+    <p>
+    We're a very friendly bunch. There's no pressure to play or take part in tournaments. If you have a passing interest
+    in Go then please come and say hello. Any of our members should be welcoming but
+    <a href="secondlife:///app/agent/46243f27-39d8-4d2c-beb6-e1488005f93a/inspect">Colonel Spaatz</a> or
+    <a href="secondlife:///app/agent/ac657fa6-d44b-4eaf-bf0d-e10c1a3b04c7/inspect">Soosanne</a> are a good place to start.
+    </p>
+
+    <p>
+    <a href="secondlife:///app/agent/ac657fa6-d44b-4eaf-bf0d-e10c1a3b04c7/inspect">Soosanne</a> - 2023/04/30
     </p>
 {% endblock %}

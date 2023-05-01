@@ -1,0 +1,48 @@
+{% extends 'site_template.html' %}
+
+{% block content %}
+  <script src="https://cdn.tiny.cloud/1/0kkgbbfqec7ucwfkn0ucm6w65mqshm8adxyzoyxfro6fqarg/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
+  <script>
+    tinymce.init({
+      selector: 'textarea',
+      plugins: 'a11ychecker advlist anchor autocorrect autosave image link linkchecker lists media mediaembed searchreplace table template tinymcespellchecker typography visualblocks wordcount',
+      toolbar: 'undo redo | styles | bold italic underline strikethrough | align | table link image media pageembed | bullist numlist outdent indent | spellcheckdialog a11ycheck typography code',
+      height: 540,
+      a11ychecker_level: 'aaa',
+      typography_langs: [ 'en-US' ],
+      typography_default_lang: 'en-US',
+      advcode_inline: true,
+      formats: [
+        {block: 'table', classes: 'table table-sm'},
+        {block: 'a', classes: 'link-light text-decoration-none'},
+      ],
+      style_formats: [
+        {title: 'Heading 1', block: 'h1'},
+        {title: 'Heading 2', block: 'h2'},
+        {title: 'Paragraph', block: 'p'},
+        {title: 'Blockquote', block: 'blockquote'},
+        {title: 'Image formats'},
+        {title: 'Medium', selector: 'img', classes: 'medium'},
+      ],
+      object_resizing: false,
+      valid_classes: {
+        'table': 'table table-sm',
+        'img': 'medium',
+        'div': 'related-content'
+      },
+      image_caption: true,
+      noneditable_class: 'related-content',
+      content_css: "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+    });
+  </script>
+
+    <h1 class="display-6">{% block title %} Edit {{tournament.tournament_name}} {% endblock %}</h1>
+    <form action="./{{ tournament.tournament_id }}" method="POST">
+        <textarea name="htmltext">
+            {{ tournament.tournament_text | safe }}
+        </textarea>
+        <input type="submit" class="btn btn-primary" value="Update text">
+        <a class="btn btn-secondary" href="{{ url_for('view_tournament', tournament_id=tournament.tournament_id) }}">Cancel</a>
+    </form>
+{% endblock %}
