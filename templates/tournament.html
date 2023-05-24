@@ -3,92 +3,18 @@
 {% block content %}
     <h1 class="display-6">{% block title %} {{tournament.tournament_name}} {% endblock %}</h1>
 
+    {% if admin %}
     <div style="width:100%;">
         <span class="badge bg-secondary rounded-pill mb-1 float-right"><a class="link-light text-decoration-none" href="{{ url_for('edit_tournament_text', tournament_id=tournament.tournament_id) }}">edit</a></span>
     </div>
+    {% endif %}
     <div>{{ tournament.tournament_text | safe }}</div>
 
 {% if games.items %}
     <h2>Games</h2>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date and time</th>
-                <th>Players</th>
-                <th>Result</th>
-                <th>Game setup</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for game in games.items %}
-            <tr>
-                <td>
-                    {{ time_ago(game.game_datetime) }}
-                </td>
-                <td>&#9675;
-                    <a href="{{ url_for('view_player', playeruuid=game.game_whiteplayerdata.player_uuid)}}">
-                        {{ game.game_whiteplayerdata.player_name }}
-                    </a>
-                    vs
-                    <a href="{{ url_for('view_player', playeruuid=game.game_blackplayerdata.player_uuid)}}">
-                        {{ game.game_blackplayerdata.player_name }}
-                    </a>
-                    &#11044;
-                </td>
-                <td>
-                    {{ game.game_winnerdata.player_name }} by {{ game.game_score }}
-                </td>
-                <td>
-                    {{ game.game_boardsize }}x{{ game.game_boardsize }}, {{ game.game_handicap }} handicap, {{ game.game_komi }} komi
-                </td>
-                <td>
-                    {% if game.game_sgf != None %}
-                        <span class="badge bg-primary rounded-pill mb-1">
-                            <a class="link-light text-decoration-none" href="{{ url_for('view_game', gameid=game.game_id) }}">view game</a>
-                        </span>
-                    {% endif %}
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
 
-    {% if games.pages > 1 %}
-        <div class="d-flex justify-content-between align-items-start">
-        <span>
-            {% if games.has_prev %}
-                <span class="badge bg-secondary rounded-pill mb-1">
-                    <a  class="link-light text-decoration-none"
-                        href="{{ url_for('view_tournament', tournament_id=tournament.tournament_id, page=games.prev_num) }}">
-                        {{ '<<<' }}
-                    </a>
-                </span>
-            {% endif %}
+    {% import "game_list.html" as gameslist %}
+    {{ gameslist.game_list(url_for('view_tournament', tournament_id=tournament.tournament_id), games, time_ago) }}
 
-            {% for number in games.iter_pages() %}
-                {% if games.page != number %}
-                    <span class="badge bg-secondary rounded-pill mb-1">
-                            <a  class="link-light text-decoration-none"
-                                href="{{ url_for('view_tournament', tournament_id=tournament.tournament_id, page=number) }}">
-                            {{ number }}
-                            </a>
-                    </span>
-                {% else %}
-                    <span class="badge bg-primary rounded-pill mb-1">{{ number }}</span>
-                {% endif %}
-            {% endfor %}
-
-            {% if games.has_next %}
-                <span class="badge bg-secondary rounded-pill mb-1">
-                    <a class="link-light text-decoration-none"
-                        href="{{ url_for('view_tournament', tournament_id=tournament.tournament_id, page=games.next_num) }}">
-                        {{ '>>>' }}
-                    </a>
-                </span>
-            {% endif %}
-        </span>
-        </div>
-    {% endif %}
 {% endif %}
 {% endblock %}

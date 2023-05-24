@@ -9,4 +9,14 @@
         </a>
         {% endfor %}
     </div>
+
+    <div class="d-flex flex-row flex-wrap bd-highlight mb-3">
+        {% for player in players %}
+            <div class="p-2 bd-highlight">
+                <a href="{{ url_for('view_player', playeruuid=player.player_uuid)}}" class="list-group-item list-group-item-action">
+                    {{ player.player_name }}
+                </a>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}

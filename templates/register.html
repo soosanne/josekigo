@@ -1,0 +1,15 @@
+{% extends 'site_template.html' %}
+
+{% block content %}
+    <h1 class="display-6">{% block title %} Register {% endblock %}</h1>
+    
+    {% if error %}
+        <div>{{ error }}</div>
+    {% endif %}
+
+    <form action="/register" method="POST">
+        <div><span>Username:</span><input type="text" name="username" placeholder="Username"></div>
+        <div><span>Password:</span><input type="password" name="password" placeholder="Password"></div>
+        <div><input type="submit" class="btn btn-primary" value="Login"></div>
+    </form>
+{% endblock %}
