@@ -56,6 +56,7 @@ class Tournament(db.Model):
     tournament_id = db.Column(db.Integer, primary_key=True)
     tournament_name = db.Column(db.String(255), nullable=False)
     tournament_text = db.Column(db.Text, nullable=True)
+    tournament_closed = db.Column(db.Boolean, nullable=True)
 
 class Login(db.Model):
     __tablename__ = "logins"
@@ -92,14 +93,14 @@ def time_ago(dt):
             return(f"{int(difference.days / 30)} months ago")
         elif difference.days > 30:
             return("1 month ago")
-        elif difference.days > 14:
+        elif difference.days > 13:
             return(f"{int(difference.days / 7)} weeks ago")
         elif difference.days > 7:
-            return("1 week ago")
-        elif difference.days > 1:
+            return(f"{difference.days} days ago")
+        elif difference.days > 2:
             return(f"{difference.days} days ago")
         else:
-            return("1 day ago")
+            return(f"{24 + int(difference.seconds / 3600)} hours ago")
     elif difference.seconds > 0:
         if difference.seconds > 7200:
             return(f"{int(difference.seconds / 3600)} hours ago")
@@ -312,10 +313,18 @@ def uploadsgf():
     # If the event is given AND is numeric AND exists in the DB
     # then set the tournamentid to be used when we create the game record
     event = findmatch("EV", sgfdata)
-    if event != "" and event.isnumeric() and db.session.query(Tournament.tournament_id).filter_by(tournament_id=int(event)).scalar() is not None:
+    if event != "" and event.isnumeric() and db.session.query(Tournament.tournament_id).filter_by(tournament_id=int(event)).scalar() is not None and not db.session.query(Tournament.tournament_closed).filter_by(tournament_id=int(event)).first().tournament_closed:
         tournamentid = int(event)
     else:
         tournamentid = None
+
+#    if event != "" and event.isnumeric() and db.session.query(Tournament.tournament_id).filter_by(tournament_id=int(event)).scalar() is not None:
+#        tournamentid = int(event)
+
+        # Check if the given tournament is closed. If so then still upload the SGF but don't add it to the tournament
+#        tournament = db.session.query(Tournament.tournament_closed).filter_by(tournament_id=tournamentid).first()
+#        if tournament.tournament_closed == 1:
+#            tournamentid = None
 
     # Get all the important game information from the SGF
     whiteplayername = findmatch("PW", sgfdata)
