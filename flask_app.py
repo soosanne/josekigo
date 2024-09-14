@@ -1,9 +1,11 @@
 from flask import Flask, redirect, render_template, request, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.inspection import inspect
 from datetime import datetime
 import re
 import database_connection
+import json
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
@@ -23,15 +25,29 @@ db = SQLAlchemy(app);
 ################################
 # Define database table models #
 ################################
-class Player(db.Model):
+class Serializer(object):
+    def serialize(self):
+        return {c: getattr(self, c) for c in inspect(self).attrs.keys()}
+
+    def serialize_columns(self, columns):
+        return {c: getattr(self, c) for c in inspect(self).attrs.keys() if c in columns}
+
+    @staticmethod
+    def serialize_list(l, columns=[]):
+        if columns != []:
+            return [m.serialize_columns(columns) for m in l]
+        else:
+            return [m.serialize() for m in l]
+
+class Player(db.Model, Serializer):
     __tablename__ = "players"
     player_name = db.Column(db.String(255), nullable=False, unique=False)
     player_uuid = db.Column(db.String(255), nullable=False, unique=True, primary_key=True)
 
-    def __repr__(self):
-        return f'<Player {self.player_uuid} - {self.player_name}>'
+    #def __repr__(self):
+    #    return f'<Player {self.player_uuid} - {self.player_name}>'
 
-class Game(db.Model):
+class Game(db.Model, Serializer):
     __tablename__ = "games"
     game_id = db.Column(db.Integer, primary_key=True)
     game_datetime = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
@@ -43,22 +59,34 @@ class Game(db.Model):
     game_winner = db.Column(db.String(255), db.ForeignKey('players.player_uuid'), nullable=False)       # Player UUID
     game_score = db.Column(db.String(10), nullable=False)                                               # String showing score or "resign"
     game_tournament = db.Column(db.Integer, db.ForeignKey('tournaments.tournament_id'), nullable=True)
-
-    game_whiteplayerdata = db.relationship('Player', foreign_keys='Game.game_whiteplayer')
-    game_blackplayerdata = db.relationship('Player', foreign_keys='Game.game_blackplayer')
-    game_winnerdata = db.relationship('Player', foreign_keys='Game.game_winner')
-    game_tournamentdata = db.relationship('Tournament', foreign_keys='Game.game_tournament')
+    game_tournamentround = db.Column(db.Integer, nullable=True)
 
     game_sgf = db.Column(db.Text, nullable=True)
 
-class Tournament(db.Model):
+    @property
+    def game_whiteplayer_name(self):
+        return Player.query.filter_by(player_uuid=self.game_whiteplayer).first().player_name
+
+    @property
+    def game_blackplayer_name(self):
+        return Player.query.filter_by(player_uuid=self.game_blackplayer).first().player_name
+
+    @property
+    def game_winner_name(self):
+        return Player.query.filter_by(player_uuid=self.game_winner).first().player_name
+
+    @property
+    def game_tournament_name(self):
+        return Tournament.query.filter_by(tournament_id=self.game_tournament).first().tournament_name
+
+class Tournament(db.Model, Serializer):
     __tablename__ = "tournaments"
     tournament_id = db.Column(db.Integer, primary_key=True)
     tournament_name = db.Column(db.String(255), nullable=False)
     tournament_text = db.Column(db.Text, nullable=True)
     tournament_closed = db.Column(db.Boolean, nullable=True)
 
-class Login(db.Model):
+class Login(db.Model, Serializer):
     __tablename__ = "logins"
     login_id = db.Column(db.Integer, primary_key=True)
     login_username = db.Column(db.String(255), nullable=False, unique=True)
@@ -401,3 +429,70 @@ def uploadsgf():
     db.session.commit()
 
     return f"game/{game.game_id}"
+
+#######
+# API #
+#######
+
+# Return all games in JSON format
+@app.route("/api/games", methods=["GET"])
+def api_games():
+    # Get a games list
+    games = Game.query.order_by(Game.game_datetime.desc())
+
+    # Return the list of artists as JSON
+    return json.dumps(Game.serialize_list(games, ["game_id", "game_datetime", "game_whiteplayer", "game_blackplayer", "game_boardsize", "game_handicap", "game_komi", "game_winner", "game_score", "game_tournament"]), default=str)
+
+@app.route("/api/games/<string:uuid>", methods=["GET"])
+def api_games_for_uuid(uuid):
+    # Get a games list
+    games = Game.query.filter((Game.game_whiteplayer==uuid) | (Game.game_blackplayer==uuid)).order_by(Game.game_datetime.desc())
+
+    # Return the list of artists as JSON
+    return json.dumps(Game.serialize_list(games, ["game_id", "game_datetime", "game_whiteplayer", "game_blackplayer", "game_boardsize", "game_handicap", "game_komi", "game_winner", "game_score", "game_tournament"]), default=str)
+
+# Return all games in a tournament
+@app.route("/api/games/tournament/<int:tournament_id>", methods=["GET"])
+def api_games_for_tournament(tournament_id):
+    # Get a games list
+    games = Game.query.filter(Game.game_tournament==tournament_id).order_by(Game.game_datetime.desc())
+
+    # Return the list of artists as JSON
+    return json.dumps(Game.serialize_list(games, ["game_id", "game_datetime", "game_whiteplayer", "game_blackplayer", "game_boardsize", "game_handicap", "game_komi", "game_winner", "game_score", "game_tournament", "game_tournamentround"]), default=str)
+
+# Return all players in JSON format
+@app.route("/api/players", methods=["GET"])
+def api_players():
+    players = Player.query.order_by(Player.player_name)
+
+    # Return the list of artists as JSON
+    return json.dumps(Player.serialize_list(players))
+
+# Return all tournaments in JSON format
+@app.route("/api/tournaments", methods=["GET"])
+def api_tournaments():
+    tournaments = Tournament.query.all()
+
+    # Return the list of artists as JSON
+    return json.dumps(Tournament.serialize_list(tournaments, ["tournament_id", "tournament_name", "tournament_closed"]))
+
+# Update game
+@app.route("/api/game/<int:thisgame>/round/<int:thisround>", methods=["POST"])
+def api_game_update_round(thisgame, thisround):
+    if verify_is_admin():
+        # Get the requested game from the database
+        game = db.session.query(Game).filter_by(game_id=thisgame).first()
+
+        if game:
+            # Update the game's round number
+            game.game_tournamentround = thisround
+
+            # Commit the change back to the database
+            db.session.commit()
+
+            return("")
+        else:
+            return("GAME NOT FOUND")
+    else:
+        return("PERMISSION DENIED")
+

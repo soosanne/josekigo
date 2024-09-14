@@ -3,7 +3,16 @@
 {% block content %}
     <h1 class="display-6">{% block title %} {{player.player_name}} Games {% endblock %}</h1>
 
-    {% import "game_list.html" as gameslist %}
-    {{ gameslist.game_list(url_for('view_player', playeruuid=player.player_uuid), games, time_ago) }}
+    <div id="app">
+        <tournamentgamelist uuid="{{ player.player_uuid }}" />
+    </div>
+
+    <!--<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>-->
+    <script src="{{ url_for("static", filename="js/vue.min.js") }}"></script>
+    <script src="{{ url_for("static", filename="js/axios.min.js") }}"></script>
+    <script src="{{ url_for("static", filename="js/game_card.js") }}"></script>
+    <script src="{{ url_for("static", filename="js/tournament_game_list.js") }}"></script>
+    <script src="{{ url_for("static", filename="js/vue_app.js") }}"></script>
 
 {% endblock %}

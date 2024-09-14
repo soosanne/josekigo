@@ -25,14 +25,16 @@
     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" class="bi bi-circle-fill" viewBox="0 0 16 16">
         <circle r="7" cx="8" cy="8" stroke="black" fill="white" stroke-width="1" />
     </svg>
-    {{ game.game_whiteplayerdata.player_name }} vs {{ game.game_blackplayerdata.player_name }}
+    <a href="https://soosanne.pythonanywhere.com/player/{{ game.game_whiteplayer }}">{{ game.game_whiteplayer_name }}</a>
+    vs
+    <a href="https://soosanne.pythonanywhere.com/player/{{ game.game_blackplayer }}">{{ game.game_blackplayer_name }}</a>
     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" class="bi bi-circle-fill" viewBox="0 0 16 16">
         <circle r="7" cx="8" cy="8" stroke="white" fill="black" stroke-width="1" />
     </svg>
     {% endblock %}</h1>
     <div class="d-flex justify-content-between align-items-start" style="width:600px;">
         <span class="badge bg-secondary rounded-pill mb-1">{{ game.game_datetime }}</span>
-        <span class="badge bg-secondary rounded-pill mb-1">{{ game_winner }} {{ game.game_winnerdata.player_name }} wins by {{ game.game_score }}</span>
+        <span class="badge bg-secondary rounded-pill mb-1">{{ game_winner }} {{ game.game_winner_name }} wins by {{ game.game_score }}</span>
     </div>
 
     <div class="besogo-editor" maxwidth="600" resize="auto" orient="portrait" portratio="110%" panels="control+tree" variants="1" path="1000" coord="western">
@@ -44,8 +46,12 @@
     <a class="btn btn-secondary mt-3 mb-3" data-bs-toggle="collapse" href="#sgfcode" role="button" aria-expanded="false" aria-controls="sgfcode">
         Show SGF code
     </a>
+    <a class="btn btn-secondary mt-3 mb-3" id="copycodebutton" role="button" aria-expanded="false">
+        Copy SGF code
+    </a>
+
     <div class="collapse" id="sgfcode">
-        <div class="card card-body mb-10" style="max-width: 800px;"><pre><code>
+        <div id="sgftext" class="card card-body mb-10" style="max-width: 800px;"><pre><code>
             {{ game.game_sgf }}
         </code></pre></div>
     </div>
@@ -58,28 +64,62 @@ document.addEventListener('DOMContentLoaded', function() {
 }, false);
 
 var sgfcodeCollapse = document.getElementById('sgfcode')
-function copyTextToClipboard(text) {
-  if (!navigator.clipboard) {
-    fallbackCopyTextToClipboard(text);
-    return;
+
+function copyToClipboard() {
+  // Get the div element
+  const divElement = document.getElementById("sgftext");
+  const copyButton = document.getElementById("copycodebutton");
+
+  // Create a temporary textarea element
+  const tempTextArea = document.createElement("textarea");
+  tempTextArea.value = divElement.textContent; // Copy text content
+
+  // Avoid scrolling to bottom
+  tempTextArea.style.top = "0";
+  tempTextArea.style.left = "0";
+  tempTextArea.style.position = "fixed";
+
+  // Append the textarea to the body
+  document.body.appendChild(tempTextArea);
+
+  // Select the text inside the textarea
+  tempTextArea.select();
+
+  try {
+    const successful = navigator.clipboard.writeText(tempTextArea.value);
+    if (successful) {
+      showMessage(copyButton, "Text copied to clipboard.");
+    } else {
+      document.execCommand("copy");
+    }
+  } catch (err) {
+    console.error("Failed to copy to clipboard:", err);
+    alert("Copying to clipboard failed. Please try manually.");
+  } finally {
+    // Remove the temporary textarea
+    document.body.removeChild(tempTextArea);
   }
-  navigator.clipboard.writeText(text).then(function() {
-    console.log('Async: Copying to clipboard was successful!');
-  }, function(err) {
-    console.error('Async: Could not copy text: ', err);
-  });
 }
 
-function SelectText() {
-    var text = document.getElementById("sgfcode");
-    var selection = window.getSelection();
-    var range = document.createRange();
-    range.selectNodeContents(text);
-    selection.removeAllRanges();
-    selection.addRange(range);
+function showMessage(element, message) {
+  const messageElement = document.createElement("span");
+  messageElement.textContent = message;
+  messageElement.style.color = "red";
+  messageElement.style.marginLeft = "5px";
+  element.after(messageElement);
 
-    copyTextToClipboard(selection.text);
+  setTimeout(() => {
+    messageElement.style.opacity = 0; // Fade to invisible
+    setTimeout(() => {
+      document.body.removeChild(messageElement); // Remove after fade
+    }, 500); // Delay before removal
+  }, 1000); // 1 second delay
 }
+
+// Add event listener to the button (unchanged)
+const copyButton = document.getElementById("copycodebutton");
+copyButton.addEventListener("click", copyToClipboard);
+
 
 </script>
 {% endblock %}

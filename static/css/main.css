@@ -1,0 +1,227 @@
+.playername, .saleartist {
+    display: inline-block;
+    width: 200px;
+}
+
+.playeruuid {
+    width: 200px;
+    display: inline-block;
+}
+
+.artistrowbuttons, .volunteerrowbuttons, .salerowbuttons {
+    display: inline-block;
+    float: right;
+}
+
+.artistrow, .volunteerrow {
+    min-height: 50px;
+}
+
+.artistrow button, .volunteerrow button {
+    vertical-align: middle;
+}
+
+button {
+    margin: 3px;
+    margin-right: 0px;
+}
+
+.smallprint {
+    font-size: 0.8em;
+}
+
+.formsmallprint {
+    font-size: 1.6em;
+}
+
+.formlead {
+    font-size: 2.5em;
+}
+
+.saledate {
+    width: 120px;
+    display: inline-block;
+}
+
+.saledescription {
+    display: inline-block;
+    width: 300px;
+}
+
+.saleprice {
+    width:100px;
+    display: inline-block;
+    text-align: right;
+    margin-right: 10px;
+}
+
+.dateselectrow {
+    vertical-align: middle;
+    min-height:40px;
+}
+
+.pagebuttons {
+    margin-right: 2px;
+    cursor: pointer;
+}
+
+.dotdot {
+    margin-right: 4px;
+    margin-left: 4px;
+}
+
+.card {
+    width: 280px;
+    margin: 10px;
+    padding: 0px;
+    border: 2px solid #0d6efd;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.card:hover {
+    border-color: white;
+}
+
+.card-whitehalf, .card-blackhalf {
+    font-size: 20px;
+    padding: 5px 10px;
+    margin 0 auto;
+    position: relative;
+    padding-left: 35px;
+}
+
+.card-whitehalf, .card-blackhalf {
+    background-color: #666;
+    color: white;
+}
+
+.card-whitehalf {
+    border-bottom: 1px solid white;
+}
+
+.card-whitehalf a, .card-blackhalf a {
+    text-decoration: none;
+    color: white;
+    white-space: nowrap;
+}
+
+.card-whitehalf a:hover, .card-blackhalf a:hover {
+    color: #6ea8fe;
+}
+
+.player-color {
+    position: absolute;
+    top: 18px;
+    left: 10px;
+}
+
+.card-whitehalf svg, .card-blackhalf svg {
+    margin-top: -5px;
+}
+
+.card-whitehalf span, .card-blackhalf span {
+    margin-left: auto;
+}
+
+.card-bottom, .card-topline {
+    height: 20px;
+    background-color: #0d6efd;
+    color: white;
+    font-size: 12px;
+    padding: 1px 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.card-timeago {
+    color: white;
+    font-size: 12px;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    padding-left: 10px;
+}
+
+.card-tournament {
+    color: white;
+    font-size: 12px;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    padding-right: 10px;
+}
+
+.card-tournament a {
+    text-decoration: none;
+    color: white;
+}
+
+.card-tournament a:hover {
+    color: #6ea8fe;
+}
+
+.card-score {
+    font-size: 12px;
+    position: absolute;
+    padding-top: 10px;
+    top: 10px;
+    bottom: 0px;
+    right: 0px;
+    margin: 0px;
+    padding: 0px;
+}
+
+.grey-grad {
+    position:relative;
+    height:100%;
+    padding-left: 40px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background-image: linear-gradient(to right, rgba(102,102,102,0), rgba(102,102,102,1));
+}
+
+.grey-back {
+    height: 20px;
+    background-color: #666;
+    height:100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-right: 10px;
+}
+
+.card-check {
+    font-size: 20px;
+    margin-left: 10px;
+    color: white;
+}
+
+.gamelist-buttons {
+    padding: 0px 20px 0px 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between; /* Aligns items with space between them */
+}
+.gamelist-buttons span {
+    white-space: nowrap;
+}
+
+.list-timeago {
+    font-size: 12px;
+}
+.list-players {
+    font-size: 20px;
+}
+.list-result {
+    font-size: 20px;
+}
+.list-settings {
+    font-size: 12px;
+}
+.list-tournament {
+
+}
+.list-viewgame {
+
+}

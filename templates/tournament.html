@@ -13,8 +13,17 @@
 {% if games.items %}
     <h2>Games</h2>
 
-    {% import "game_list.html" as gameslist %}
-    {{ gameslist.game_list(url_for('view_tournament', tournament_id=tournament.tournament_id), games, time_ago) }}
+    <div id="app">
+        <gamelist tournament="{{tournament.tournament_id}}" {% if admin %} admin="true" {% endif %} pagesize="50" />
+    </div>
+
+    <!--<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>-->
+    <script src="{{ url_for("static", filename="js/vue.min.js") }}"></script>
+    <script src="{{ url_for("static", filename="js/axios.min.js") }}"></script>
+    <script src="{{ url_for("static", filename="js/game_card.js") }}"></script>
+    <script src="{{ url_for("static", filename="js/game_list.js") }}"></script>
+    <script src="{{ url_for("static", filename="js/vue_app.js") }}"></script>
 
 {% endif %}
 {% endblock %}

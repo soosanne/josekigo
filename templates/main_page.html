@@ -1,21 +1,18 @@
 {% extends 'site_template.html' %}
 
 {% block content %}
-    <h1 class="display-5">{% block title %} Recent Games {% endblock %}
-    <span style="align:right; margin-left:100px;">
-        <a class="btn btn-sm {% if boardsize == 19 %}btn-primary{% else %}btn-outline-primary{% endif %}" href="{{ url_for('index', boardsize=19) }}">19x19</a>
-        <a class="btn btn-sm {% if boardsize == 13 %}btn-primary{% else %}btn-outline-primary{% endif %}" href="{{ url_for('index', boardsize=13) }}">13x13</a>
-        <a class="btn btn-sm {% if boardsize == 9 %}btn-primary{% else %}btn-outline-primary{% endif %}" href="{{ url_for('index', boardsize=9) }}">9x9</a>
-        <a class="btn btn-sm {% if boardsize == -1 %}btn-primary{% else %}btn-outline-primary{% endif %}" href="{{ url_for('index') }}">all</a>
-    </span>
-    </h1>
+    <h1 class="display-5">{% block title %} Recent Games {% endblock %}</h1>
 
-    {% import "game_list.html" as gameslist %}
-    {{ gameslist.game_list(url_for('index'), games, time_ago) }}
+    <div id="app">
+        <gamelist />
+    </div>
 
-    <script type="text/javascript">
-        window.setTimeout( function() {
-            window.location.reload();
-        }, 60000);
-    </script>
+    <!--<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>-->
+    <script src="{{ url_for("static", filename="js/vue.min.js") }}"></script>
+    <script src="{{ url_for("static", filename="js/axios.min.js") }}"></script>
+    <script src="{{ url_for("static", filename="js/game_card.js") }}"></script>
+    <script src="{{ url_for("static", filename="js/game_list.js") }}"></script>
+    <script src="{{ url_for("static", filename="js/vue_app.js") }}"></script>
+
 {% endblock %}

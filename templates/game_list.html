@@ -19,19 +19,19 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="bi bi-circle-fill" viewBox="0 0 16 16">
                         <circle r="7" cx="8" cy="8" stroke="black" fill="white" stroke-width="1" />
                     </svg>
-                    <a href="{{ url_for('view_player', playeruuid=game.game_whiteplayerdata.player_uuid)}}">
-                        {{ game.game_whiteplayerdata.player_name }}
+                    <a href="{{ url_for('view_player', playeruuid=game.game_whiteplayer)}}">
+                        {{ game.game_whiteplayer_name }}
                     </a>
                     vs
-                    <a href="{{ url_for('view_player', playeruuid=game.game_blackplayerdata.player_uuid)}}">
-                        {{ game.game_blackplayerdata.player_name }}
+                    <a href="{{ url_for('view_player', playeruuid=game.game_blackplayer)}}">
+                        {{ game.game_blackplayer_name }}
                     </a>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="bi bi-circle-fill" viewBox="0 0 16 16">
                         <circle r="7" cx="8" cy="8" stroke="white" fill="black" stroke-width="1" />
                     </svg>
                 </td>
                 <td>
-                    {{ game.game_winnerdata.player_name }}, {{ game.game_score }}
+                    {{ game.game_winner_name }}, {{ game.game_score }}
                 </td>
                 <td>
                     {{ game.game_boardsize }}x{{ game.game_boardsize }}, {{ game.game_handicap }} handicap, {{ game.game_komi }} komi
@@ -39,7 +39,7 @@
                 <td>
                     {% if game.game_tournament %}
                         <span class="badge bg-secondary rounded-pill py-2">
-                            <a class="link-light text-decoration-none" href="{{ url_for('view_tournament', tournament_id=game.game_tournament)}}">{{ game.game_tournamentdata.tournament_name }}</a>
+                            <a class="link-light text-decoration-none" href="{{ url_for('view_tournament', tournament_id=game.game_tournament)}}">{{ game.game_tournament_name }}</a>
                         </span>
                     {% endif %}
                 </td>
